@@ -3,9 +3,231 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Scientific Method Guide</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">Scientific Method</div>
+            <ul class="nav-links">
+                <li><a href="#home" onclick="showPage('home')" class="nav-link active">Home</a></li>
+                <li><a href="#method" onclick="showPage('method')" class="nav-link">Method</a></li>
+                <li><a href="#about" onclick="showPage('about')" class="nav-link">About Us</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Home Page -->
+    <div id="home" class="page active">
+        <div class="hero">
+            <div class="hero-content">
+                <h1>Welcome to the Scientific Method Guide</h1>
+                <p>Learn the systematic approach to discovery and experimentation</p>
+                <button class="cta-button" onclick="showPage('method')">Explore the Method</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scientific Method Page -->
+    <div id="method" class="page">
+        <div class="container">
+            <h1>The Scientific Method</h1>
+            <p class="page-intro">The scientific method is a systematic process used by scientists to explore observations, ask questions, and test theories. Click on each step to learn more.</p>
+            
+            <div class="method-steps">
+                <!-- Step 1: Observation -->
+                <div class="step-card">
+                    <button class="step-header" onclick="toggleDropdown(this)">
+                        <span class="step-number">1</span>
+                        <span class="step-title">Observation</span>
+                        <span class="dropdown-icon">▼</span>
+                    </button>
+                    <div class="step-content">
+                        <p><strong>Definition:</strong> The process of gathering information about the world through our senses or instruments.</p>
+                        <p><strong>Key Points:</strong></p>
+                        <ul>
+                            <li>Careful and systematic examination of phenomena</li>
+                            <li>Can be qualitative (descriptive) or quantitative (numerical)</li>
+                            <li>Forms the foundation of all scientific inquiry</li>
+                        </ul>
+                        <p><strong>Example:</strong> A scientist notices that plants in a shaded area grow slower than those in sunlight.</p>
+                    </div>
+                </div>
+
+                <!-- Step 2: Question -->
+                <div class="step-card">
+                    <button class="step-header" onclick="toggleDropdown(this)">
+                        <span class="step-number">2</span>
+                        <span class="step-title">Question</span>
+                        <span class="dropdown-icon">▼</span>
+                    </button>
+                    <div class="step-content">
+                        <p><strong>Definition:</strong> Formulating a clear, specific question based on observations.</p>
+                        <p><strong>Key Points:</strong></p>
+                        <ul>
+                            <li>Questions should be testable and measurable</li>
+                            <li>Focus on "why" or "how" questions</li>
+                            <li>Guide the direction of research</li>
+                        </ul>
+                        <p><strong>Example:</strong> "Does the amount of sunlight affect the growth rate of plants?"</p>
+                    </div>
+                </div>
+
+                <!-- Step 3: Research/Background -->
+                <div class="step-card">
+                    <button class="step-header" onclick="toggleDropdown(this)">
+                        <span class="step-number">3</span>
+                        <span class="step-title">Research & Background</span>
+                        <span class="dropdown-icon">▼</span>
+                    </button>
+                    <div class="step-content">
+                        <p><strong>Definition:</strong> Gathering existing knowledge and data related to your question.</p>
+                        <p><strong>Key Points:</strong></p>
+                        <ul>
+                            <li>Review existing studies and literature</li>
+                            <li>Understand what is already known</li>
+                            <li>Identify gaps in knowledge</li>
+                        </ul>
+                        <p><strong>Example:</strong> Reading about photosynthesis and how light affects plant growth.</p>
+                    </div>
+                </div>
+
+                <!-- Step 4: Hypothesis -->
+                <div class="step-card">
+                    <button class="step-header" onclick="toggleDropdown(this)">
+                        <span class="step-number">4</span>
+                        <span class="step-title">Hypothesis</span>
+                        <span class="dropdown-icon">▼</span>
+                    </button>
+                    <div class="step-content">
+                        <p><strong>Definition:</strong> An educated prediction or proposed explanation based on limited evidence.</p>
+                        <p><strong>Key Points:</strong></p>
+                        <ul>
+                            <li>Must be testable and falsifiable</li>
+                            <li>Based on research and observations</li>
+                            <li>Often written as an "if-then" statement</li>
+                        </ul>
+                        <p><strong>Example:</strong> "If plants receive more sunlight, then they will grow taller than plants with less sunlight."</p>
+                    </div>
+                </div>
+
+                <!-- Step 5: Experiment -->
+                <div class="step-card">
+                    <button class="step-header" onclick="toggleDropdown(this)">
+                        <span class="step-number">5</span>
+                        <span class="step-title">Experiment</span>
+                        <span class="dropdown-icon">▼</span>
+                    </button>
+                    <div class="step-content">
+                        <p><strong>Definition:</strong> A controlled test designed to prove or disprove the hypothesis.</p>
+                        <p><strong>Key Points:</strong></p>
+                        <ul>
+                            <li>Control variables to isolate the effect being studied</li>
+                            <li>Include a control group and experimental group</li>
+                            <li>Collect data systematically</li>
+                            <li>Ensure experiments are reproducible</li>
+                        </ul>
+                        <p><strong>Example:</strong> Growing plants in varying light conditions while keeping soil, water, and temperature constant.</p>
+                    </div>
+                </div>
+
+                <!-- Step 6: Analysis -->
+                <div class="step-card">
+                    <button class="step-header" onclick="toggleDropdown(this)">
+                        <span class="step-number">6</span>
+                        <span class="step-title">Data Analysis</span>
+                        <span class="dropdown-icon">▼</span>
+                    </button>
+                    <div class="step-content">
+                        <p><strong>Definition:</strong> Examining and organizing data to draw conclusions.</p>
+                        <p><strong>Key Points:</strong></p>
+                        <ul>
+                            <li>Use statistics and graphs to visualize data</li>
+                            <li>Look for patterns and trends</li>
+                            <li>Identify relationships between variables</li>
+                        </ul>
+                        <p><strong>Example:</strong> Creating charts showing plant height vs. light exposure and calculating average growth rates.</p>
+                    </div>
+                </div>
+
+                <!-- Step 7: Conclusion -->
+                <div class="step-card">
+                    <button class="step-header" onclick="toggleDropdown(this)">
+                        <span class="step-number">7</span>
+                        <span class="step-title">Conclusion</span>
+                        <span class="dropdown-icon">▼</span>
+                    </button>
+                    <div class="step-content">
+                        <p><strong>Definition:</strong> A summary of whether the hypothesis was supported by the data.</p>
+                        <p><strong>Key Points:</strong></p>
+                        <ul>
+                            <li>State whether the hypothesis was supported or rejected</li>
+                            <li>Explain what the results mean</li>
+                            <li>Discuss limitations of the study</li>
+                        </ul>
+                        <p><strong>Example:</strong> "The data supports the hypothesis that increased sunlight leads to greater plant growth."</p>
+                    </div>
+                </div>
+
+                <!-- Step 8: Communication -->
+                <div class="step-card">
+                    <button class="step-header" onclick="toggleDropdown(this)">
+                        <span class="step-number">8</span>
+                        <span class="step-title">Communication & Peer Review</span>
+                        <span class="dropdown-icon">▼</span>
+                    </button>
+                    <div class="step-content">
+                        <p><strong>Definition:</strong> Sharing findings with the scientific community for review and validation.</p>
+                        <p><strong>Key Points:</strong></p>
+                        <ul>
+                            <li>Publish results in scientific journals</li>
+                            <li>Present findings at conferences</li>
+                            <li>Allow other scientists to review and verify work</li>
+                            <li>Results may lead to new questions and further research</li>
+                        </ul>
+                        <p><strong>Example:</strong> Publishing the plant growth study in a peer-reviewed botanical journal.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Us Page -->
+    <div id="about" class="page">
+        <div class="container">
+            <h1>About Us</h1>
+            <div class="about-content">
+                <p>Welcome to the Scientific Method Guide! Our mission is to educate and inspire the next generation of scientists and critical thinkers.</p>
+                
+                <h2>Our Mission</h2>
+                <p>We believe that understanding the scientific method is fundamental to scientific literacy. By breaking down each step into clear, digestible information, we help students, educators, and curious minds grasp the systematic approach that drives scientific discovery.</p>
+                
+                <h2>What We Offer</h2>
+                <ul class="about-list">
+                    <li><strong>Comprehensive Guide:</strong> Detailed explanations of all eight steps of the scientific method</li>
+                    <li><strong>Real-World Examples:</strong> Practical examples that illustrate each step</li>
+                    <li><strong>Educational Resource:</strong> Ideal for students, teachers, and lifelong learners</li>
+                    <li><strong>Interactive Learning:</strong> User-friendly interface with expandable content</li>
+                </ul>
+                
+                <h2>Why the Scientific Method Matters</h2>
+                <p>The scientific method is the backbone of modern science. It provides a systematic framework for asking questions, testing ideas, and building knowledge. Whether you're in a classroom, laboratory, or conducting everyday investigations, understanding these principles helps you think critically and make informed decisions.</p>
+                
+                <h2>Get Started</h2>
+                <p>Ready to explore the scientific method? Visit our <a href="#method" onclick="showPage('method')">Method page</a> to dive into each step with detailed explanations and examples.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Scientific Method Guide. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
 </body>
 </html>
