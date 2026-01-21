@@ -74,12 +74,12 @@ async function sendMessage() {
     const loadingDiv = document.getElementById('loading');
     loadingDiv.classList.remove('hidden');
 
-        try {
-            const res = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message })
-            });
+    try {
+        const res = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message })
+        });
 
         if (!res.ok) {
             const err = await res.json().catch(() => ({}));
@@ -101,39 +101,6 @@ async function sendMessage() {
         loadingDiv.classList.add('hidden');
     }
 }
-        // AI Chat Functions
-        if (window.puter && puter.ai && typeof puter.ai.chat === 'function') {
-            try {
-                const resp = await puter.ai.chat(message, { model: 'gemini-3-flash-preview' });
-                let text = '';
-
-                // Handle different possible response shapes. Prefer the friendly assistant message text.
-                if (typeof resp === 'string') {
-                    text = resp;
-                } else if (resp && resp.message && resp.message.content) {
-                    text = resp.message.content;
-                } else if (resp && resp.output) {
-                    text = resp.output;
-                } else if (resp && resp.text) {
-                    text = resp.text;
-                } else {
-                    // Fallback: stringify but avoid dumping large debug fields
-                    try {
-                        const safe = Object.assign({}, resp);
-                        delete safe.extra_content;
-                        text = JSON.stringify(safe);
-                    } catch (e) {
-                        text = String(resp);
-                    }
-                }
-
-                addMessage(text, 'assistant');
-            } catch (err) {
-                console.error('Puter error:', err);
-                addMessage('AI Assistant (client) error.', 'error');
-            }
-            return;
-        }
 
 function addMessage(text, sender) {
     const chatBox = document.getElementById('chat-box');
