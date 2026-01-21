@@ -58,3 +58,48 @@ document.addEventListener('keydown', function(event) {
 document.addEventListener('DOMContentLoaded', function() {
     showPage('home');
 });
+
+// AI Chat Functions
+async function sendMessage() {
+    const userInput = document.getElementById('user-input');
+    const message = userInput.value.trim();
+
+    if (!message) return;
+
+    // Add user message to chat
+    addMessage(message, 'user');
+    userInput.value = '';
+
+    // Show loading indicator
+    const loadingDiv = document.getElementById('loading');
+    loadingDiv.classList.remove('hidden');
+
+    try {
+        // Check if API is available
+        addMessage('The AI Assistant is not yet available. Please set up your Gemini API key in the server configuration to enable this feature.', 'error');
+    } catch (error) {
+        console.error('Error:', error);
+        addMessage('Sorry, the AI Assistant is currently unavailable.', 'error');
+    } finally {
+        loadingDiv.classList.add('hidden');
+    }
+}
+
+function addMessage(text, sender) {
+    const chatBox = document.getElementById('chat-box');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chat-message ${sender}-message`;
+    
+    const p = document.createElement('p');
+    p.textContent = text;
+    messageDiv.appendChild(p);
+    
+    chatBox.appendChild(messageDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function handleKeyPress(event) {
+    if (event.key === 'Enter') {
+        sendMessage();
+    }
+}
