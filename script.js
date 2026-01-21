@@ -79,12 +79,9 @@ async function sendMessage() {
         if (window.puter && puter.ai && typeof puter.ai.chat === 'function') {
             try {
                 const resp = await puter.ai.chat(message, { model: 'gemini-3-flash-preview' });
-                let text = '';
-                if (typeof resp === 'string') text = resp;
-                else if (resp && resp.output) text = resp.output;
-                else if (resp && resp.text) text = resp.text;
-                else text = JSON.stringify(resp);
-                addMessage(text, 'assistant');
+                console.debug('Puter raw response:', resp);
+                const text = extractPuterText(resp);
+                addMessage(text || JSON.stringify(resp), 'assistant');
             } catch (err) {
                 console.error('Puter error:', err);
                 addMessage('AI Assistant (client) error.', 'error');
@@ -131,6 +128,34 @@ function addMessage(text, sender) {
     
     chatBox.appendChild(messageDiv);
     chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function extractPuterText(resp) {
+    if (typeof resp === 'string') return resp;
+    if (!resp) return '';
+    if (typeof resp.output === 'string') return resp.output;
+    if (typeof resp.text === 'string') return resp.text;
+    if (resp.message) {
+        const msg = resp.message;
+        if (typeof msg === 'string') return msg;
+        if (typeof msg.content === 'string') return msg.content;
+        if (Array.isArray(msg.content)) {
+            const parts = msg.content.map(c => {
+                if (typeof c === 'string') return c;
+                if (c && typeof c.text === 'string') return c.text;
+                if (c && c.type === 'output_text' && typeof c.text === 'string') return c.text;
+                return '';
+            }).filter(Boolean);
+            if (parts.length) return parts.join('\n');
+        }
+        if (msg.content && typeof msg.content.text === 'string') return msg.content.text;
+        if (msg.content && Array.isArray(msg.content.parts)) {
+            const parts = msg.content.parts.filter(Boolean);
+            if (parts.length) return parts.join(' ');
+        }
+    }
+    if (Array.isArray(resp)) return resp.map(r => extractPuterText(r)).filter(Boolean).join('\n');
+    try { return JSON.stringify(resp); } catch (e) { return String(resp); }
 }
 
 function handleKeyPress(event) {
