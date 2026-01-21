@@ -1,57 +1,140 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import path from 'path';
-import { fileURLToPath } from 'url';
+// Page Navigation
+function showPage(pageId) {
+    // Hide all pages
+    const pages = document.querySelectorAll('.page');
+    pages.forEach(page => page.classList.remove('active'));
 
-dotenv.config();
+    // Show selected page
+    const selectedPage = document.getElementById(pageId);
+    if (selectedPage) {
+        selectedPage.classList.add('active');
+    }
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+    // Update active nav link
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => link.classList.remove('active'));
+    
+    const activeLink = document.querySelector(`a[onclick="showPage('${pageId}')"]`);
+    if (activeLink) {
+        activeLink.classList.add('active');
+    }
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+    // Scroll to top
+    window.scrollTo(0, 0);
+}
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.static(__dirname));
+// Toggle Dropdown Content
+function toggleDropdown(button) {
+    const stepCard = button.closest('.step-card');
+    const content = stepCard.querySelector('.step-content');
+    
+    // Toggle active state
+    button.classList.toggle('active');
+    content.classList.toggle('active');
+}
 
-// Initialize Gemini AI
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
-// Route to get AI response
-app.post('/api/chat', async (req, res) => {
-    try {
-        const { message } = req.body;
-
-        if (!message) {
-            return res.status(400).json({ error: 'Message is required' });
-        }
-
-        if (!process.env.GEMINI_API_KEY) {
-            return res.status(500).json({ error: 'Gemini API key not configured' });
-        }
-
-        const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
-        
-        const result = await model.generateContent(message);
-        const response = await result.response;
-        const text = response.text();
-
-        res.json({ response: text });
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ error: 'Failed to generate response', details: error.message });
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(event) {
+    if (!event.target.closest('.step-header')) {
+        // Optional: uncomment to close all dropdowns when clicking outside
+        // document.querySelectorAll('.step-header').forEach(header => {
+        //     header.classList.remove('active');
+        //     header.closest('.step-card').querySelector('.step-content').classList.remove('active');
+        // });
     }
 });
 
-// Health check
-app.get('/api/health', (req, res) => {
-    res.json({ status: 'Server is running' });
+// Keyboard accessibility
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter' || event.key === ' ') {
+        if (event.target.closest('.step-header')) {
+            event.preventDefault();
+            toggleDropdown(event.target.closest('.step-header'));
+        }
+    }
 });
 
-app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    showPage('home');
 });
+
+// AI Chat Functions
+async function sendMessage() {
+    const userInput = document.getElementById('user-input');
+    const message = userInput.value.trim();
+
+    if (!message) return;
+
+    // Add user message to chat
+    addMessage(message, 'user');
+    userInput.value = '';
+
+    // Show loading indicator
+    const loadingDiv = document.getElementById('loading');
+    loadingDiv.classList.remove('hidden');
+
+    try {
+        // If Puter client is available, use it for client-side chat
+        if (window.puter && puter.ai && typeof puter.ai.chat === 'function') {
+            try {
+                const resp = await puter.ai.chat(message, { model: 'gemini-3-flash-preview' });
+                let text = '';
+                if (typeof resp === 'string') text = resp;
+                else if (resp && resp.output) text = resp.output;
+                else if (resp && resp.text) text = resp.text;
+                else text = JSON.stringify(resp);
+                addMessage(text, 'assistant');
+            } catch (err) {
+                console.error('Puter error:', err);
+                addMessage('AI Assistant (client) error.', 'error');
+            }
+            return;
+        }
+
+        // Fallback to server-side proxy
+        const res = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message })
+        });
+
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            const msg = err && err.error ? err.error : 'AI Assistant error';
+            addMessage(msg, 'error');
+            return;
+        }
+
+        const data = await res.json();
+        if (data && data.response) {
+            addMessage(data.response, 'assistant');
+        } else {
+            addMessage('No response from AI assistant.', 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        addMessage('Sorry, the AI Assistant is currently unavailable.', 'error');
+    } finally {
+        loadingDiv.classList.add('hidden');
+    }
+}
+
+function addMessage(text, sender) {
+    const chatBox = document.getElementById('chat-box');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chat-message ${sender}-message`;
+    
+    const p = document.createElement('p');
+    p.textContent = text;
+    messageDiv.appendChild(p);
+    
+    chatBox.appendChild(messageDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function handleKeyPress(event) {
+    if (event.key === 'Enter') {
+        sendMessage();
+    }
+}
