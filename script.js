@@ -1,122 +1,57 @@
-// Page Navigation
-function showPage(pageId) {
-    // Hide all pages
-    const pages = document.querySelectorAll('.page');
-    pages.forEach(page => page.classList.remove('active'));
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-    // Show selected page
-    const selectedPage = document.getElementById(pageId);
-    if (selectedPage) {
-        selectedPage.classList.add('active');
-    }
+dotenv.config();
 
-    // Update active nav link
-    const navLinks = document.querySelectorAll('.nav-link');
-    navLinks.forEach(link => link.classList.remove('active'));
-    
-    const activeLink = document.querySelector(`a[onclick="showPage('${pageId}')"]`);
-    if (activeLink) {
-        activeLink.classList.add('active');
-    }
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-    // Scroll to top
-    window.scrollTo(0, 0);
-}
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-// Toggle Dropdown Content
-function toggleDropdown(button) {
-    const stepCard = button.closest('.step-card');
-    const content = stepCard.querySelector('.step-content');
-    
-    // Toggle active state
-    button.classList.toggle('active');
-    content.classList.toggle('active');
-}
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.static(__dirname));
 
-// Close dropdowns when clicking outside
-document.addEventListener('click', function(event) {
-    if (!event.target.closest('.step-header')) {
-        // Optional: uncomment to close all dropdowns when clicking outside
-        // document.querySelectorAll('.step-header').forEach(header => {
-        //     header.classList.remove('active');
-        //     header.closest('.step-card').querySelector('.step-content').classList.remove('active');
-        // });
-    }
-});
+// Initialize Gemini AI
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// Keyboard accessibility
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Enter' || event.key === ' ') {
-        if (event.target.closest('.step-header')) {
-            event.preventDefault();
-            toggleDropdown(event.target.closest('.step-header'));
-        }
-    }
-});
-
-// Initialize page
-document.addEventListener('DOMContentLoaded', function() {
-    showPage('home');
-});
-
-// AI Chat Functions
-async function sendMessage() {
-    const userInput = document.getElementById('user-input');
-    const message = userInput.value.trim();
-
-    if (!message) return;
-
-    // Add user message to chat
-    addMessage(message, 'user');
-    userInput.value = '';
-
-    // Show loading indicator
-    const loadingDiv = document.getElementById('loading');
-    loadingDiv.classList.remove('hidden');
-
+// Route to get AI response
+app.post('/api/chat', async (req, res) => {
     try {
-        const res = await fetch('/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message })
-        });
+        const { message } = req.body;
 
-        if (!res.ok) {
-            const err = await res.json().catch(() => ({}));
-            const msg = err && err.error ? err.error : 'AI Assistant error';
-            addMessage(msg, 'error');
-            return;
+        if (!message) {
+            return res.status(400).json({ error: 'Message is required' });
         }
 
-        const data = await res.json();
-        if (data && data.response) {
-            addMessage(data.response, 'assistant');
-        } else {
-            addMessage('No response from AI assistant.', 'error');
+        if (!process.env.GEMINI_API_KEY) {
+            return res.status(500).json({ error: 'Gemini API key not configured' });
         }
+
+        const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+        
+        const result = await model.generateContent(message);
+        const response = await result.response;
+        const text = response.text();
+
+        res.json({ response: text });
     } catch (error) {
         console.error('Error:', error);
-        addMessage('Sorry, the AI Assistant is currently unavailable.', 'error');
-    } finally {
-        loadingDiv.classList.add('hidden');
+        res.status(500).json({ error: 'Failed to generate response', details: error.message });
     }
-}
+});
 
-function addMessage(text, sender) {
-    const chatBox = document.getElementById('chat-box');
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `chat-message ${sender}-message`;
-    
-    const p = document.createElement('p');
-    p.textContent = text;
-    messageDiv.appendChild(p);
-    
-    chatBox.appendChild(messageDiv);
-    chatBox.scrollTop = chatBox.scrollHeight;
-}
+// Health check
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'Server is running' });
+});
 
-function handleKeyPress(event) {
-    if (event.key === 'Enter') {
-        sendMessage();
-    }
-}
+app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+});
