@@ -62,17 +62,17 @@ document.addEventListener('DOMContentLoaded', function() {
 // AI Chat Functions
 async function sendMessage() {
     const userInput = document.getElementById('user-input');
-    const message = userInput.value.trim();
+    const message = (userInput && userInput.value || '').trim();
 
     if (!message) return;
 
     // Add user message to chat
     addMessage(message, 'user');
-    userInput.value = '';
+    if (userInput) userInput.value = '';
 
     // Show loading indicator
     const loadingDiv = document.getElementById('loading');
-    loadingDiv.classList.remove('hidden');
+    if (loadingDiv) loadingDiv.classList.remove('hidden');
 
     try {
         // If Puter client is available, use it for client-side chat
@@ -92,31 +92,35 @@ async function sendMessage() {
             return;
         }
 
-        // Fallback to server-side proxy
-        const res = await fetch('/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message })
-        });
+        // Try server-side proxy first (if you've added one later)
+        try {
+            const res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message })
+            });
 
-        if (!res.ok) {
-            const err = await res.json().catch(() => ({}));
-            const msg = err && err.error ? err.error : 'AI Assistant error';
-            addMessage(msg, 'error');
-            return;
+            if (res.ok) {
+                const data = await res.json().catch(() => ({}));
+                if (data && data.response) {
+                    addMessage(data.response, 'assistant');
+                    return;
+                }
+            }
+            // if server returned non-ok or no usable data, fall through to local responder
+        } catch (err) {
+            // network/server error - fall back to local responder
+            console.warn('Server proxy unavailable, using local responder.', err);
         }
 
-        const data = await res.json();
-        if (data && data.response) {
-            addMessage(data.response, 'assistant');
-        } else {
-            addMessage('No response from AI assistant.', 'error');
-        }
+        // Local offline responder (works without any API key)
+        const reply = await localResponder(message);
+        addMessage(reply, 'assistant');
     } catch (error) {
         console.error('Error:', error);
         addMessage('Sorry, the AI Assistant is currently unavailable.', 'error');
     } finally {
-        loadingDiv.classList.add('hidden');
+        if (loadingDiv) loadingDiv.classList.add('hidden');
     }
 }
 
@@ -131,6 +135,37 @@ function addMessage(text, sender) {
     
     chatBox.appendChild(messageDiv);
     chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// Local offline responder for when no API key / server is available
+function localResponder(prompt) {
+    return new Promise((resolve) => {
+        const p = (prompt || '').toLowerCase();
+        const responses = [];
+
+        const map = [
+            {k: ['obser', 'notice', 'see'], v: 'Observation: Watch carefully and write down what you notice. Use your senses and record details.'},
+            {k: ['question', 'why', 'how', 'ask'], v: 'Question: Turn your observation into a testable question like "Do plants grow better with more sunlight?"'},
+            {k: ['research', 'background', 'read', 'learn'], v: 'Research: Look up what others know — books, articles, or ask experts.'},
+            {k: ['hypoth', 'if', 'then', 'predict'], v: 'Hypothesis: A testable prediction, often in "If... then..." form.'},
+            {k: ['experiment', 'test', 'trial'], v: 'Experiment: Change only one variable, keep others the same, and record results.'},
+            {k: ['data', 'analysis', 'graph', 'chart'], v: 'Data Analysis: Organize measurements, draw graphs, and look for patterns.'},
+            {k: ['conclusion', 'result', 'right', 'wrong'], v: 'Conclusion: Compare results to your prediction and explain what they mean.'},
+            {k: ['commun', 'share', 'present', 'peer'], v: 'Communication: Share your findings so others can review and learn.'},
+            {k: ['method', 'steps', 'scientific method'], v: 'The Scientific Method: Observation → Question → Research → Hypothesis → Experiment → Analysis → Conclusion → Communication.'},
+            {k: ['help', 'what can i ask', 'examples'], v: 'Try asking about any step (observation, hypothesis, experiment, analysis, conclusion) or ask for an example.'}
+        ];
+
+        for (const item of map) {
+            if (item.k.some(kw => p.includes(kw))) responses.push(item.v);
+        }
+
+        const fallback = 'I don\'t have internet access to call an AI. Try asking about one of these: observation, hypothesis, experiment, data analysis, conclusion, or communication.';
+
+        setTimeout(() => {
+            resolve(responses.length ? responses.join(' ') : fallback);
+        }, 600);
+    });
 }
 
 function handleKeyPress(event) {
