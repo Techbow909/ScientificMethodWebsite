@@ -14,6 +14,7 @@
             <ul class="nav-links">
                 <li><a href="#home" onclick="showPage('home')" class="nav-link active">Home</a></li>
                 <li><a href="#method" onclick="showPage('method')" class="nav-link">Method</a></li>
+                <li><a href="#ai" onclick="showPage('ai')" class="nav-link">AI Assistant</a></li>
                 <li><a href="#about" onclick="showPage('about')" class="nav-link">About Us</a></li>
             </ul>
         </div>
@@ -189,6 +190,37 @@
                         </ul>
                         <p><strong>Example:</strong> Publishing the plant growth study in a peer-reviewed botanical journal.</p>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Assistant Page -->
+    <div id="ai" class="page">
+        <div class="container">
+            <h1>AI Assistant</h1>
+            <p class="page-intro">Ask questions about the scientific method and get instant answers powered by AI.</p>
+            
+            <div class="chat-container">
+                <div id="chat-box" class="chat-box">
+                    <div class="chat-message assistant-message">
+                        <p>Hello! I'm your AI Assistant. Ask me anything about the scientific method or science in general!</p>
+                    </div>
+                </div>
+                
+                <div class="chat-input-container">
+                    <input 
+                        type="text" 
+                        id="user-input" 
+                        class="chat-input" 
+                        placeholder="Type your question here..."
+                        onkeypress="handleKeyPress(event)"
+                    />
+                    <button onclick="sendMessage()" class="send-button">Send</button>
+                </div>
+                
+                <div id="loading" class="loading hidden">
+                    <span class="spinner"></span> Thinking...
                 </div>
             </div>
         </div>
