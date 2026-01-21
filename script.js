@@ -75,8 +75,43 @@ async function sendMessage() {
     loadingDiv.classList.remove('hidden');
 
     try {
-        // Check if API is available
-        addMessage('The AI Assistant is not yet available. Please set up your Gemini API key in the server configuration to enable this feature.', 'error');
+        // If Puter client is available, use it for client-side chat
+        if (window.puter && puter.ai && typeof puter.ai.chat === 'function') {
+            try {
+                const resp = await puter.ai.chat(message, { model: 'gemini-3-flash-preview' });
+                let text = '';
+                if (typeof resp === 'string') text = resp;
+                else if (resp && resp.output) text = resp.output;
+                else if (resp && resp.text) text = resp.text;
+                else text = JSON.stringify(resp);
+                addMessage(text, 'assistant');
+            } catch (err) {
+                console.error('Puter error:', err);
+                addMessage('AI Assistant (client) error.', 'error');
+            }
+            return;
+        }
+
+        // Fallback to server-side proxy
+        const res = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message })
+        });
+
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            const msg = err && err.error ? err.error : 'AI Assistant error';
+            addMessage(msg, 'error');
+            return;
+        }
+
+        const data = await res.json();
+        if (data && data.response) {
+            addMessage(data.response, 'assistant');
+        } else {
+            addMessage('No response from AI assistant.', 'error');
+        }
     } catch (error) {
         console.error('Error:', error);
         addMessage('Sorry, the AI Assistant is currently unavailable.', 'error');
