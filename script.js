@@ -131,26 +131,8 @@ async function sendMessage() {
             return;
         }
 
-        // Fallback to server-side proxy
-        const res = await fetch('/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: systemPromptMessage })
-        });
-
-        if (!res.ok) {
-            const err = await res.json().catch(() => ({}));
-            const msg = err && err.error ? err.error : 'AI Assistant error';
-            addMessage(msg, 'error');
-            return;
-        }
-
-        const data = await res.json();
-        if (data && data.response) {
-            addMessage(data.response, 'assistant');
-        } else {
-            addMessage('No response from AI assistant.', 'error');
-        }
+        // Puter client not available
+        addMessage('AI Assistant requires Puter to be loaded. Please refresh the page.', 'error');
     } catch (error) {
         console.error('Error:', error);
         addMessage('Sorry, the AI Assistant is currently unavailable.', 'error');
