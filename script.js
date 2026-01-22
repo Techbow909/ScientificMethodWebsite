@@ -57,6 +57,25 @@ document.addEventListener('keydown', function(event) {
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
     showPage('home');
+    
+    // Check for saved dark mode preference
+    const darkModePreference = localStorage.getItem('darkMode');
+    if (darkModePreference === 'enabled') {
+        document.body.classList.add('dark-mode');
+        const icon = document.getElementById('dark-mode-toggle').querySelector('i');
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
+    } else if (darkModePreference === 'disabled') {
+        document.body.classList.remove('dark-mode');
+    } else {
+        // Check system preference if no saved preference
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.body.classList.add('dark-mode');
+            const icon = document.getElementById('dark-mode-toggle').querySelector('i');
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+        }
+    }
 });
 
 // AI Chat Functions
@@ -165,5 +184,24 @@ function extractPuterText(resp) {
 function handleKeyPress(event) {
     if (event.key === 'Enter') {
         sendMessage();
+    }
+}
+
+// Dark Mode Toggle
+function toggleDarkMode() {
+    const body = document.body;
+    const icon = document.getElementById('dark-mode-toggle').querySelector('i');
+    
+    body.classList.toggle('dark-mode');
+    
+    // Update icon
+    if (body.classList.contains('dark-mode')) {
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
+        localStorage.setItem('darkMode', 'enabled');
+    } else {
+        icon.classList.remove('fa-sun');
+        icon.classList.add('fa-moon');
+        localStorage.setItem('darkMode', 'disabled');
     }
 }
