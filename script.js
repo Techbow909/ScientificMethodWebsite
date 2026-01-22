@@ -66,6 +66,10 @@ async function sendMessage() {
 
     if (!message) return;
 
+    // Create system prompt to guide AI behavior
+    const systemPrompt = "[System: If the user's question is not about science or the scientific method, tell them to get back to work. Do nto give any of the steps of the scientific method directly, but guide the student to it. acknowledge this but do not mention it in your reply] ";
+    const systemPromptMessage = systemPrompt + message;
+
     // Add user message to chat
     addMessage(message, 'user');
     userInput.value = '';
@@ -78,7 +82,7 @@ async function sendMessage() {
         // If Puter client is available, use it for client-side chat
         if (window.puter && puter.ai && typeof puter.ai.chat === 'function') {
             try {
-                const resp = await puter.ai.chat(message, { model: 'gemini-3-flash-preview' });
+                const resp = await puter.ai.chat(systemPromptMessage, { model: 'gemini-3-flash-preview' });
                 console.debug('Puter raw response:', resp);
                 const text = extractPuterText(resp);
                 addMessage(text || JSON.stringify(resp), 'assistant');
@@ -93,7 +97,7 @@ async function sendMessage() {
         const res = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message })
+            body: JSON.stringify({ message: systemPromptMessage })
         });
 
         if (!res.ok) {
