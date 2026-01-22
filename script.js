@@ -23,6 +23,25 @@ function showPage(pageId) {
     window.scrollTo(0, 0);
 }
 
+// Dark Mode Toggle
+function toggleDarkMode() {
+    const body = document.body;
+    const icon = document.getElementById('dark-mode-toggle').querySelector('i');
+    
+    body.classList.toggle('dark-mode');
+    
+    // Update icon
+    if (body.classList.contains('dark-mode')) {
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
+        localStorage.setItem('darkMode', 'enabled');
+    } else {
+        icon.classList.remove('fa-sun');
+        icon.classList.add('fa-moon');
+        localStorage.setItem('darkMode', 'disabled');
+    }
+}
+
 // Toggle Dropdown Content
 function toggleDropdown(button) {
     const stepCard = button.closest('.step-card');
@@ -184,24 +203,5 @@ function extractPuterText(resp) {
 function handleKeyPress(event) {
     if (event.key === 'Enter') {
         sendMessage();
-    }
-}
-
-// Dark Mode Toggle
-function toggleDarkMode() {
-    const body = document.body;
-    const icon = document.getElementById('dark-mode-toggle').querySelector('i');
-    
-    body.classList.toggle('dark-mode');
-    
-    // Update icon
-    if (body.classList.contains('dark-mode')) {
-        icon.classList.remove('fa-moon');
-        icon.classList.add('fa-sun');
-        localStorage.setItem('darkMode', 'enabled');
-    } else {
-        icon.classList.remove('fa-sun');
-        icon.classList.add('fa-moon');
-        localStorage.setItem('darkMode', 'disabled');
     }
 }
