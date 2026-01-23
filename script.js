@@ -105,7 +105,7 @@ async function sendMessage() {
     if (!message) return;
 
     // Create system prompt to guide AI behavior
-    const systemPrompt = "[System: If the user's question is not about science or the scientific method, tell them to get back to work(not exactly, get back to work,but rather be more gentle but be encouraging, like lets get back on track. greetings are fine, you can reply to it, but ask a follow up, like how may i assist you with the scientific method). Do nto give any of the steps of the scientific method directly, but guide the student to it. Make it simple, easy to understand, and concise message. do ONLY science and scientific method, ONLY ONLY ONLY. Make sure to not bold, italicise, underline, make graphs etc, as it turns messy. acknowledge this but do not mention it in your reply.] ";
+    const systemPrompt = "[System: If the user's question is not about science or the scientific method, tell them to focus on the work(not exactly the words get back to work,but rather be more gentle but be encouraging, like lets get back on track. greetings are fine, you can reply to it, but ask a follow up, like how may i assist you with the scientific method). Do nto give any of the steps of the scientific method directly, but guide the student to it. Make it simple, easy to understand, and concise message. do ONLY science and scientific method, ONLY ONLY ONLY. Make sure to not bold, italicise, underline, make graphs etc, as it turns messy. acknowledge this but do not mention it in your reply.] ";
     const systemPromptMessage = systemPrompt + message;
 
     // Add user message to chat
